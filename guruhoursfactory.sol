@@ -29,9 +29,6 @@ contract GuruHoursFactory is Ownable, IGuruHoursFactory
     event DAOChanged(address dao);
     event TokenCreated(address indexed token, address owner, string name, string symbod);
     event Transfer(address indexed token, address indexed sender, address indexed recepient, uint256 amount);
-    event TokenOwnershipTransferred(address indexed token, address indexed newOwner);
-    event BioChanged(address indexed token, string bioCID);
-    event AvatarChanged(address indexed token, string avatarCID);
 
     uint256 public _fee;
     address public _dao;
@@ -69,11 +66,10 @@ contract GuruHoursFactory is Ownable, IGuruHoursFactory
     function deployGuruHoursToken(string memory name, string memory symbol) public payable
     {
         require(_ownerToToken[_msgSender()] == address(0), "already has token");
-        GuruHoursToken token = new GuruHoursToken(address(this), name, symbol);
+        GuruHoursToken token = new GuruHoursToken(address(this), _msgSender(), name, symbol);
         _tokenToOwner[address(token)] = _msgSender();
         _ownerToToken[_msgSender()] = address(token);
         emit TokenCreated(address(token), _msgSender(), name, symbol);
-        token.transferOwnership(_msgSender());
     }
 
     function validateToken() internal view
@@ -85,26 +81,5 @@ contract GuruHoursFactory is Ownable, IGuruHoursFactory
     {
         validateToken();
         emit Transfer(_msgSender(), sender, recipient, amount);
-    }
-
-    function onChangeBio(string memory bioCID) public override
-    {
-        validateToken();
-        emit BioChanged(_msgSender(), bioCID);
-    }
-    
-    function onChangeAvatar(string memory avatarCID) public override
-    {
-        validateToken();
-        emit AvatarChanged(_msgSender(), avatarCID);
-    }
-
-    function onOwnershipTransfer(address newOwner) public override
-    {
-        validateToken();
-        address oldOwner = _tokenToOwner[_msgSender()];
-        _tokenToOwner[_msgSender()] = newOwner;
-        _ownerToToken[oldOwner] = address(0);
-        emit TokenOwnershipTransferred(_msgSender(), newOwner);
     }
 }

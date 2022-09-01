@@ -24,20 +24,18 @@ import "github.com/OpenZeppelin/openzeppelin-contracts/contracts/token/ERC20/ERC
 import "github.com/OpenZeppelin/openzeppelin-contracts/contracts/access/Ownable.sol";
 import "./iguruhoursfactory.sol";
 
-
 contract GuruHoursToken is ERC20, Ownable
 {
-    event BioChanged(string bioCID);
-    event AvatarChanged(string avatarCID);
-
     IGuruHoursFactory private _factory;
-    string            public  _name;
-    string            public  _bioCID;
-    string            public  _avatarCID;
 
-    constructor(address factory, string memory name, string memory symbol) ERC20(name, symbol)
+    constructor(
+        address factory,
+        address guru,
+        string memory name,
+        string memory symbol) ERC20(name, symbol)
     {
         _factory = IGuruHoursFactory(factory);
+        super.transferOwnership(guru);
     }
     
     function burn(uint256 amount) public
@@ -66,23 +64,8 @@ contract GuruHoursToken is ERC20, Ownable
         _factory.onTransfer(_msgSender(), recipient, amount);
     }
 
-    function transferOwnership(address newOwner) public override onlyOwner
+    function transferOwnership(address) public view override onlyOwner
     {
-        super.transferOwnership(newOwner);
-        _factory.onOwnershipTransfer(newOwner);
-    }
-
-    function setBio(string memory bioCID) public onlyOwner
-    {
-        _bioCID = bioCID;
-        _factory.onChangeBio(bioCID);
-        emit BioChanged(bioCID);
-    }
-
-    function setAvatar(string memory avatarCID) public onlyOwner
-    {
-        _avatarCID = avatarCID;
-        _factory.onChangeAvatar(avatarCID);
-        emit AvatarChanged(avatarCID);
+        revert("ownership transferring forbidden");
     }
 }

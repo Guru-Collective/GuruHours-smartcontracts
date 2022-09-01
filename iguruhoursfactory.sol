@@ -20,13 +20,9 @@ along with the IGuruHoursFactory Contract. If not, see <http://www.gnu.org/licen
 
 pragma solidity ^0.8.0;
 
-
 interface IGuruHoursFactory
 {
     function fee() view external returns(uint256);
     function dao() view external returns(address);
     function onTransfer(address sender, address recipient, uint256 amount) external;
-    function onChangeBio(string memory bioCID) external;
-    function onChangeAvatar(string memory avatarCID) external;
-    function onOwnershipTransfer(address newOwner) external;
 }
