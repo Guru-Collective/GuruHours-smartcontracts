@@ -35,7 +35,8 @@ contract GuruHoursFactory is Ownable, IGuruHoursFactory
 
     uint256 public _fee;
     address public _dao;
-    mapping (address => address) public _tokens;
+    mapping (address => address) public _tokenToOwner;
+    mapping (address => address) public _ownerToToken;
 
     constructor ()
     {
@@ -67,15 +68,17 @@ contract GuruHoursFactory is Ownable, IGuruHoursFactory
 
     function deployGuruHoursToken(string memory name, string memory symbol) public payable
     {
+        require(_ownerToToken[_msgSender()] == address(0), "already has token");
         GuruHoursToken token = new GuruHoursToken(address(this), name, symbol);
-        _tokens[address(token)] = _msgSender();
+        _tokenToOwner[address(token)] = _msgSender();
+        _ownerToToken[_msgSender()] = address(token);
         emit TokenCreated(address(token), _msgSender(), name, symbol);
         token.transferOwnership(_msgSender());
     }
 
     function validateToken() internal view
     {
-        require(_tokens[_msgSender()] != address(0), "unknown token contract");
+        require(_tokenToOwner[_msgSender()] != address(0), "unknown token contract");
     }
 
     function onTransfer(address sender, address recipient, uint256 amount) public override
@@ -99,6 +102,9 @@ contract GuruHoursFactory is Ownable, IGuruHoursFactory
     function onOwnershipTransfer(address newOwner) public override
     {
         validateToken();
+        address oldOwner = _tokenToOwner[_msgSender()];
+        _tokenToOwner[_msgSender()] = newOwner;
+        _ownerToToken[oldOwner] = address(0);
         emit TokenOwnershipTransferred(_msgSender(), newOwner);
     }
 }
