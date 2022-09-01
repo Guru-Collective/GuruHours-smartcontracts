@@ -26,7 +26,6 @@ interface IGuruHoursFactory
     function fee() view external returns(uint256);
     function dao() view external returns(address);
     function onTransfer(address sender, address recipient, uint256 amount) external;
-    function onChangeName(string memory name) external;
     function onChangeBio(string memory bioCID) external;
     function onChangeAvatar(string memory avatarCID) external;
     function onOwnershipTransfer(address newOwner) external;
